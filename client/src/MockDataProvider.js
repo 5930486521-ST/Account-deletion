@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React from 'react'
 
 import * as LoadState from './LoadState'
-
+import _ from 'lodash'
 export default class MockDataProvider extends React.Component {
   static propTypes = {
     children: PropTypes.func.isRequired,
@@ -24,8 +24,16 @@ export default class MockDataProvider extends React.Component {
 
       deleteWorkspaces: [],
 
-      transferableMembers: [],
+      transferOwnershipStatus: {
+        workspaceId: null,
+        toUserId: null,
+        ...LoadState.pending,
+      },
+      
+      transferData :[],
 
+      terminateAccountStatus: LoadState.pending,
+      
       fetchRelatedWorkspaces: async () => {
         const response = await window.fetch(
           `https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/fetchWorkspaces?userId=${
@@ -43,10 +51,45 @@ export default class MockDataProvider extends React.Component {
         })
       },
 
-      transferOwnershipStatus: {
-        workspaceId: null,
-        toUserId: null,
-        ...LoadState.pending,
+      getTransferData : () => {
+        const { workspaceId, toUserId, status } = this.state.transferOwnershipStatus
+        const transferData = this.state.transferData
+        const updateData = _.reduce(
+          transferData,
+          (result, assign) => {
+            if (
+              assign.workspaceId === workspaceId &&
+              assign.toUser._id === toUserId
+            ) {
+              result.push(Object.assign({}, assign, { status }))
+            } else {
+              result.push(assign)
+            }
+            return result
+          },
+          []
+        )
+        return updateData
+      },
+
+      assignToUser : (workspace, user) => {
+        const assigns = _.reject(
+          this.state.getTransferData(),
+          assign => assign.workspaceId === workspace.spaceId
+        )
+        if(!LoadState.isError(this.state.transferOwnershipStatus)){
+          this.setState({
+            transferData: [
+              ...assigns,
+              { workspaceId: workspace.spaceId,
+                toUser: user,
+                ...LoadState[this.state.transferOwnershipStatus.status]}
+            ]
+          })
+        }
+        else {
+          this.setState({transferData: [...assigns]});
+        }
       },
 
       transferOwnership: (user, workspace) => {
@@ -55,7 +98,7 @@ export default class MockDataProvider extends React.Component {
             transferOwnershipStatus: {
               workspaceId: workspace.spaceId,
               toUserId: this.state.user._id,
-              ...LoadState.loading,
+              ...LoadState.fetching, 
             },
           },
           async () => {
@@ -74,29 +117,29 @@ export default class MockDataProvider extends React.Component {
                 }),
               }
             )
+            var transferOwnershipStatus ;
             if (response.status === 200) {
-              this.setState({
-                transferOwnershipStatus: {
+                transferOwnershipStatus = {
                   workspaceId: workspace.spaceId,
                   toUserId: user._id,
                   ...LoadState.completed,
-                },
-              })
+                }                
             } else {
-              this.setState({
-                transferOwnershipStatus: {
+                transferOwnershipStatus = {
                   workspaceId: workspace.spaceId,
                   toUserId: user._id,
                   ...LoadState.error,
-                },
-              })
+                }
             }
+            await this.setState({transferOwnershipStatus:transferOwnershipStatus})
+            this.state.assignToUser(workspace, user)
           }
         )
       },
 
       terminateAccount: async payload => {
         // Note that there is 30% chance of getting error from the server
+        await this.setState( {terminateAccountStatus: LoadState.fetching})
         const response = await window.fetch(
           'https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/terminateAccount',
           {
@@ -107,7 +150,8 @@ export default class MockDataProvider extends React.Component {
             },
             body: JSON.stringify(payload),
           }
-        )
+        )        
+        // console.log(response)
         if (response.status === 200) {
           this.setState({
             terminateAccountStatus: LoadState.handleLoaded(
@@ -117,7 +161,7 @@ export default class MockDataProvider extends React.Component {
         } else {
           this.setState({
             terminateAccountStatus: LoadState.handleLoadFailedWithError(
-              'Error deleting account'
+              'Error deleting account, please try again'
             )(this.state.terminateAccountStatus),
           })
         }
@@ -131,12 +175,12 @@ export default class MockDataProvider extends React.Component {
         })
       },
 
-      terminateAccountStatus: {},
-      resetTerminateAccountStatus: () => {
-        this.setState({
-          terminateAccountStatus: LoadState.pending,
-        })
-      },
+      
+      // resetTerminateAccountStatus: () => {
+      //   this.setState({
+      //     terminateAccountStatus: LoadState.pending,
+      //   })
+      // },
 
       rediectToHomepage: () => {
         window.location = 'http://www.example.com/'
@@ -145,6 +189,7 @@ export default class MockDataProvider extends React.Component {
   }
 
   render() {
+    // console.log(this.state.terminateAccountStatus)
     return this.props.children(this.state)
   }
 }

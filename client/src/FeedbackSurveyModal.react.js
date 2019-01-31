@@ -12,10 +12,10 @@ class FeedbackSurveyModal extends React.PureComponent {
     showCommentForm: PropTypes.bool,
     comment: PropTypes.string,
     onChangeComment: PropTypes.func,
-    onToggleFeedback : PropTypes.func,
-    surveyChoice : React.PropTypes.object,
-    onChangeChoiceComment : PropTypes.func,
-    choiceComment : React.PropTypes.object
+    onToggleFeedback: PropTypes.func,
+    surveyChoice: React.PropTypes.object,
+    onChangeChoiceComment: PropTypes.func,
+    choiceComment: React.PropTypes.object
   }
 
   state = {
@@ -30,8 +30,8 @@ class FeedbackSurveyModal extends React.PureComponent {
     const prefill = placeHolder && canComment ? placeHolder : ''
     return !this.props.surveyChoice[stack] ? null : (
       <div style={!canComment ? { display: 'none' } : null}>
-        <input type="text" name={stack} ref={stack} placeholder={prefill}  
-          onChange ={(e) => {this.props.onChangeChoiceComment(e,stack)}} required />
+        <input type="text" name={stack} ref={stack} placeholder={prefill}
+          onChange={(e) => { this.props.onChangeChoiceComment(e, stack) }} required />
       </div>
     )
   }
@@ -41,15 +41,15 @@ class FeedbackSurveyModal extends React.PureComponent {
     return (
       <div style={{ marginTop: '0.5rem' }}>
         Comments:
-        <div className ="form-group">
+        <div className="form-group">
           <textarea
-            className ="form-control"
+            className="form-control"
             type="text"
             name="comment"
             style={
               this.state.isFocusCommentBox
-                ? { border: '1px solid #5a6977' ,}
-                : { border: '1px solid #5a6977',  }
+                ? { border: '1px solid #5a6977', }
+                : { border: '1px solid #5a6977', }
             }
             onChange={this.props.onChangeComment}
             value={this.props.comment}
@@ -61,19 +61,19 @@ class FeedbackSurveyModal extends React.PureComponent {
 
   render() {
     return (
-      <div className ="p-4">
+      <div className="p-4">
         <h1>{this.props.title}</h1>
-        <div className ="m-4">
+        <div className="m-4">
           {_.map(feedbackSurveyItems, (item, key) => (
             <div key={key}>
               <label>
                 <div >
                   <input
-                    className ="mx-2"
+                    className="mx-2"
                     type="checkbox"
                     checked={this.props.surveyChoice[item.stack]}
                     onClick={() => this.props.onToggleFeedback(item.stack)}
-                    style ={{width: "17px", height: "17px"}}
+                    style={{ width: "17px", height: "17px" }}
                   />
                   <label>{item.title}</label>
                 </div>

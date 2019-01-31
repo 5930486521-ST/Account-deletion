@@ -5,29 +5,36 @@ import * as LoadState from './LoadState'
 import fail from "./pic/fail.png"
 import success from "./pic/success.png"
 
-const renderStatus = (props,workspace) => () =>{
-  const transferOwnershipStatus =  props.transferOwnershipStatus
-  if (transferOwnershipStatus.workspaceId === workspace.spaceId){
-    if (LoadState.isLoading(transferOwnershipStatus)){
-      return (<div className="d-flex flex-row"><div className="loader mx-1"></div><span>Checking...</span></div>)
+const renderStatus = (props, workspace) => () => {
+  const transferOwnershipStatus = props.transferOwnershipStatus
+  const assignedWorkspace = props.transferData.filter((obj) => obj.workspaceId === workspace.spaceId)
+  if (transferOwnershipStatus.workspaceId === workspace.spaceId) {
+    if (LoadState.isLoading(transferOwnershipStatus)) {
+      return <div className="d-flex flex-row">
+        <div className="loader mx-1"></div>
+        <span>Checking...</span>
+      </div>
     }
-    if (LoadState.isError(transferOwnershipStatus)){
-      return <div className="d-flex flex-row"><img  className="mx-1" src={fail} width='20rem' height='20rem' alt="success"></img>
-      <span>Check Failed, please transfer to other person</span></div>
+    if (LoadState.isError(transferOwnershipStatus)) {
+      return <div className="d-flex flex-row">
+        <img className="mx-1" src={fail} width='20rem' height='20rem' alt="success"></img>
+        <span>Check Failed, please transfer to other person</span>
+      </div>
     }
   }
-  const assignedWorkspace = props.transferData.filter((obj)=> obj.workspaceId === workspace.spaceId)
-  if (assignedWorkspace.length){
-    return <div className="d-flex flex-row"><img className="mx-1"src={success} width='20rem' height='20rem' alt="success"></img>
-    <span>Checked</span></div>;
+  if (assignedWorkspace.length) {
+    return <div className="d-flex flex-row">
+      <img className="mx-1" src={success} width='20rem' height='20rem' alt="success"></img>
+      <span>Checked</span>
+    </div>
   }
 }
 
-const renderAssignOwner = (props,workspace) => {
+const renderAssignOwner = (props, workspace) => {
   if (React.Children.count(props.children) === 0) return null
   else {
-    const getRenderStatus = renderStatus(props,workspace)
-    return React.cloneElement(props.children, { workspace,getRenderStatus})
+    const getRenderStatus = renderStatus(props, workspace)
+    return React.cloneElement(props.children, { workspace, getRenderStatus })
   }
 }
 
@@ -37,12 +44,11 @@ export const WorkspaceGroupRows = props =>
       <h3>{props.groupTitle}</h3>
       <div>
         {_.map(props.workspaces, workspace => (
-          <div className = "ml-4" key={workspace.spaceId} style={{ marginTop: '1rem' }}>
+          <div className="ml-4" key={workspace.spaceId} style={{ marginTop: '1rem' }}>
             <span >Workspace: {workspace.displayName}</span>
             <span>
-              {renderAssignOwner(props,workspace)}
+              {renderAssignOwner(props, workspace)}
             </span>
-            
           </div>
         ))}
       </div>
@@ -68,7 +74,7 @@ export const TransferOwnershipModal = props => {
         workspace admin rights to other person.
       </p>
       {props.loading ? renderLoading() : props.children}
-      <div className ="d-flex flex-row-reverse">
+      <div className="d-flex flex-row-reverse">
       </div>
     </div>
   )

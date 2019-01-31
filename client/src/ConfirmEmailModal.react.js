@@ -12,7 +12,7 @@ class ConfirmEmailModal extends React.PureComponent {
     onTypeEmail: PropTypes.func,
     resetTerminateAccountStatus: PropTypes.func,
     terminateAccountStatus: PropTypes.object,
-    previousInputValid : PropTypes.bool
+    previousInputValid: PropTypes.bool
   }
 
   state = { markedConsequences: false }
@@ -44,7 +44,7 @@ class ConfirmEmailModal extends React.PureComponent {
 
   render() {
     return (
-      <div className ="p-4 py-5">
+      <div className="p-4 py-5">
         <h1>Delete account</h1>
         <p>This action cannot be undone.</p>
         <div>Please enter your email: {this.renderFormInputPasssword()}</div>
@@ -54,13 +54,13 @@ class ConfirmEmailModal extends React.PureComponent {
               type="checkbox"
               checked={this.state.markedConsequences}
               onChange={this.onToggleMarkedConsequences}
-              className ="mx-2"
-              style ={{width: "17px", height: "17px"}}
+              className="mx-2"
+              style={{ width: "17px", height: "17px" }}
             />
             I understand the consequences.
           </label>
         </div>
-        <div className ="d-flex flex-row-reverse">
+        <div className="d-flex flex-row-reverse">
           <button className="btn btn-secondary px-5 mr-5 ml-3" onClick={this.props.onClickToDelete} disabled={this.getStateButton() || !this.props.previousInputValid}>
             Delete my account
           </button>

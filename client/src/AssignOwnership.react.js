@@ -11,7 +11,7 @@ export default class AssignOwnership extends React.Component {
     transferData: PropTypes.array,
     onAssignToUser: PropTypes.func,
     transferOwnershipStatus: PropTypes.object,
-    getRenderStatus:  PropTypes.func
+    getRenderStatus: PropTypes.func
   }
 
   getAddedMember() {
@@ -31,25 +31,24 @@ export default class AssignOwnership extends React.Component {
 
   render() {
     return (
-      <div className = "d-flex flex-row">
+      <div className="d-flex flex-row">
         <div>
           <select
-
             value={this.getAddedMember()}
             onChange={this.onAssignToUser}
-            style={{ minWidth: '3rem',  cursor: 'pointer' }}
+            style={{ minWidth: '3rem', cursor: 'pointer' }}
           >
             <option value="" disabled />
-            {this.props.workspace.transferableMembers.map(user =>{
-              return(
+            {this.props.workspace.transferableMembers.map(user => {
+              return (
                 <option key={user._id} value={user._id}>
                   {user.name}
                 </option>
-            )})}
+              )
+            })}
           </select>
         </div>
         {this.props.getRenderStatus()}
-        
       </div>
     )
   }
